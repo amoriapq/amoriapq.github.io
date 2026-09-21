@@ -229,6 +229,111 @@
   .foot{padding:0 18px 16px;font-size:.78rem;color:var(--muted);line-height:1.7}
   .foot code{font-family:var(--mono);color:var(--ink-2)}
 
+  /* ---------- 탭 ---------- */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{
+    border:1px solid var(--line-strong);border-radius:999px;
+    background:var(--surface);color:var(--ink-2);
+    font-size:.86rem;font-weight:700;padding:7px 16px;
+    transition:background .14s,border-color .14s,color .14s;
+  }
+  .tab:hover:not(.is-on){border-color:var(--accent-line);color:var(--accent)}
+  .tab.is-on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+  /* ---------- 3단계 발판 ---------- */
+  /* 장면 + 슬라임 상자를 나란히, 조합은 그 아래 */
+  .stage3{display:flex;flex-direction:column;gap:20px}
+  /* 좌우 상자 높이를 맞춘다 */
+  .s3-top{
+    display:grid;grid-template-columns:minmax(0,1fr) clamp(268px,27%,372px);
+    gap:20px;align-items:stretch;
+  }
+  @media (max-width:900px){.s3-top{grid-template-columns:minmax(0,1fr)}}
+  .panel.board3{display:flex;flex-direction:column}
+  .board3 .board-body{
+    padding:14px 14px 10px;flex:1;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+
+  /* 완성된 맵 장면(2000x872) 위에 발판 클릭 영역만 얹는다 */
+  .pf-scene{
+    position:relative;display:block;line-height:0;
+    border:1px solid var(--line-strong);border-radius:3px;overflow:hidden;
+  }
+  .scene-bg{display:block;width:100%;height:auto}
+  .hot{
+    position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);
+    background:transparent;border:2px solid transparent;border-radius:9px;
+    padding:0;cursor:pointer;
+    transition:background .15s,border-color .15s,box-shadow .15s;
+  }
+  .hot:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.8)}
+  .hot.on{
+    background:rgba(24,158,152,.26);border-color:#46E6DC;
+    box-shadow:0 0 15px rgba(70,230,220,.8), inset 0 0 20px rgba(70,230,220,.3);
+  }
+  .pf-note{margin:10px 0 0;text-align:center;font-size:.82rem;color:var(--ink-2)}
+  .pf-note b{font-family:var(--mono);color:var(--accent)}
+
+  /* 슬라임 상자 */
+  .slimebox{position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .slimebox .panel-head h2{display:flex;align-items:center;gap:7px}
+  .slimebox .panel-head h2 img{width:22px;height:auto}
+  /* 제목 옆 ⓘ — 눌러서 짧은 설명을 편다 */
+  .info-btn{
+    width:20px;height:20px;border-radius:50%;padding:0;flex:0 0 auto;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);
+    font-size:.72rem;font-weight:700;line-height:1;
+    transition:background .14s,border-color .14s,color .14s;
+  }
+  .info-btn:hover,.info-btn[aria-expanded="true"]{
+    background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
+  }
+  .info-pop{
+    margin:0 0 12px;padding:10px 12px;border-radius:3px;
+    border:1px solid var(--accent-line);background:var(--accent-soft);
+    font-size:.78rem;line-height:1.6;color:var(--ink-2);
+  }
+  .sb-body{position:relative;z-index:1;padding:14px;flex:1;display:flex;flex-direction:column}
+  .sb-deco{
+    position:absolute;right:-18px;bottom:-14px;width:132px;height:auto;
+    opacity:.1;pointer-events:none;z-index:0;
+  }
+  .slime-row{display:flex;flex-direction:column;gap:6px;margin:10px 0 0}
+  .slime{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 13px;border-radius:3px;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    font-family:var(--mono);font-weight:700;font-size:.95rem;line-height:1.2;
+    transition:background .14s,border-color .14s,color .14s;
+  }
+  .slime .dots{display:flex;gap:3px;align-items:center;min-height:19px}
+  .slime .dots img{width:18px;height:auto}
+  .slime .dots .none{font-family:var(--sans);font-weight:400;font-size:.72rem;color:var(--muted)}
+  .slime:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .slime:disabled{opacity:.3;cursor:not-allowed}
+  .slime.win{
+    justify-content:center;font-family:var(--sans);font-size:.9rem;
+    border-color:var(--accent-line);color:var(--accent);
+  }
+  .slime.win:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .sb-body .ctrl-row{flex-wrap:wrap;margin-top:auto;padding-top:14px}
+  .sb-body .ghost{flex:1 1 auto;text-align:center}
+  .cands-body{padding:14px 18px 16px}
+
+  .grid3{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:5px;
+    max-height:270px;overflow-y:auto;padding-right:4px;
+  }
+  .cell3{
+    font-family:var(--mono);font-weight:700;font-size:.8rem;letter-spacing:.06em;
+    text-align:center;padding:7px 0;border-radius:2px;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    transition:background .16s,color .16s,border-color .16s;
+  }
+  .cell3:hover{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+  .cell3.now{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -237,9 +342,13 @@
     <div>
       <h1>아모리아 파티퀘스트 도우미</h1>
     </div>
+    <nav class="tabs">
+      <button class="tab is-on" data-tab="s2">2단계 · 사다리</button>
+      <button class="tab" data-tab="s3">3단계 · 발판</button>
+    </nav>
   </header>
 
-  <div class="stage">
+  <div class="stage" id="tab-s2">
   <section class="panel board">
     <div class="board-body">
       <div class="ladders" id="ladders"></div>
@@ -289,6 +398,63 @@
       <b>전부 틀림</b>이면 한 자리라도 겹치는 후보가 지워집니다. 시도한 배치는 어느 쪽이든 함께 지워집니다.
     </p>
   </section>
+  </div>
+
+  <div class="stage3" id="tab-s3" hidden>
+    <div class="s3-top">
+      <section class="panel board3">
+        <div class="board-body">
+          <div class="pf-scene" id="pfScene">
+            <img class="scene-bg" src="img/scene3.webp" alt="아모리아 파티퀘스트 3단계 발판 9개">
+          </div>
+          <p class="pf-note" id="pfNote">발판을 눌러 파티원을 올리세요 — <b>0 / 5</b></p>
+        </div>
+      </section>
+
+      <aside class="panel slimebox">
+        <div class="panel-head">
+          <h2>
+            <img src="img/slime.png" alt="">슬라임 수
+            <button class="info-btn" id="infoBtn" aria-expanded="false" aria-controls="infoPop" aria-label="설명 보기">i</button>
+          </h2>
+          <span class="hint">126가지</span>
+        </div>
+        <div class="sb-body">
+          <img class="sb-deco" src="img/slime.png" alt="" aria-hidden="true">
+
+          <p class="info-pop" id="infoPop" hidden>슬라임 수 = 밟은 발판 중 맞은 개수입니다.</p>
+
+          <div class="guide-top">
+            <span class="step-chip" id="step3">1번째 시도</span>
+            <span class="guide-combo pending" id="combo3">─</span>
+          </div>
+          <button class="apply" id="apply3" hidden>추천 배치로 맞추기</button>
+
+          <p class="ask-label" id="askLabel3">발판 5개를 고른 뒤, 소환된 슬라임 수를 누르세요.</p>
+          <div class="slime-row" id="slimeRow"></div>
+          <p class="msg" id="msg3" role="status" aria-live="polite"></p>
+
+          <div class="ctrl-row">
+            <button class="ghost" id="scan3">스캔 배치</button>
+            <button class="ghost" id="back3">한 단계 뒤로</button>
+            <button class="ghost" id="reset3">초기화</button>
+          </div>
+
+          <div class="trail" id="trail3"></div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>가능한 조합</h2>
+        <span class="c" id="cand3">남은 후보 126 · 지워짐 0</span>
+      </div>
+      <div class="cands-body">
+        <div class="grid3" id="grid3"></div>
+        <p class="empty-note" id="empty3" hidden>남은 후보가 없습니다. 한 단계 뒤로 돌아가 슬라임 수를 다시 확인해 주세요.</p>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -589,6 +755,252 @@
   }
   if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
   else start((window.claude && window.claude.hot && window.claude.hot.data) || null);
+})();
+
+/* ================= 탭 전환 ================= */
+(function(){
+  var tabs = [].slice.call(document.querySelectorAll(".tab"));
+  var panes = {s2:document.getElementById("tab-s2"), s3:document.getElementById("tab-s3")};
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){
+      tabs.forEach(function(x){ x.classList.toggle("is-on", x === t); });
+      Object.keys(panes).forEach(function(k){ panes[k].hidden = (k !== t.dataset.tab); });
+    });
+  });
+})();
+
+/* ================= 3단계 — 9개 발판 중 5개 ================= */
+(function(){
+  var LABELS = ["A","2","B","3","C","6","D","9","5"];
+  var TOPS = [0,1,2,3], BOTS = [4,5,6,7,8];
+  /* 장면 이미지(2000x872) 안에서 각 발판이 차지하는 위치 — 퍼센트 */
+  var HOT = [
+    [17.25,22.4],[34,22.4],[50.5,22.4],[67,22.4],
+    [8.75,57.9],[25.5,57.9],[42,57.9],[58.75,57.9],[75.25,57.9]
+  ];
+  var HOT_W = 14.5, HOT_H = 16;
+  var TOPMASK = 0xF;          // 위 발판 4개
+  var PICK = 5;
+
+  function pc(x){ var c = 0; while (x) { c += x & 1; x >>>= 1; } return c; }
+  function txt(m){
+    var s = [];
+    for (var i = 0; i < 9; i++) if (m & (1 << i)) s.push(LABELS[i]);
+    return s.join(" ");
+  }
+
+  /* 9칸 중 5칸을 고르는 126가지를 비트마스크로 */
+  var ALL = [];
+  for (var m = 0; m < 512; m++) if (pc(m) === PICK) ALL.push(m);
+
+  var sel = 0, alive = ALL.slice(), hist = [], scanIdx = 0, rec = null;
+
+  var els = {
+    scene:document.getElementById("pfScene"),
+    note:document.getElementById("pfNote"),
+    step:document.getElementById("step3"),
+    combo:document.getElementById("combo3"),
+    apply:document.getElementById("apply3"),
+    askLabel:document.getElementById("askLabel3"),
+    slimeRow:document.getElementById("slimeRow"),
+    msg:document.getElementById("msg3"),
+    grid:document.getElementById("grid3"),
+    empty:document.getElementById("empty3"),
+    candCount:document.getElementById("cand3"),
+    trail:document.getElementById("trail3"),
+    scan:document.getElementById("scan3"),
+    back:document.getElementById("back3"),
+    reset:document.getElementById("reset3")
+  };
+  var ORD = ["","1번째","2번째","3번째","4번째","5번째","6번째","7번째","8번째","9번째","10번째"];
+
+  /* 남은 후보에서 최악의 경우가 가장 작은 배치를 고른다 */
+  function best(list){
+    if (list.length <= 1) return list[0] || null;
+    var b = null, bw = Infinity, bIsCand = false;
+    for (var i = 0; i < ALL.length; i++) {
+      var g = ALL[i], bk = [0,0,0,0,0,0];
+      for (var j = 0; j < list.length; j++) bk[pc(list[j] & g)]++;
+      var w = 0;
+      for (var k = 0; k < 6; k++) if (bk[k] > w) w = bk[k];
+      var isC = list.indexOf(g) >= 0;
+      if (w < bw || (w === bw && isC && !bIsCand)) { bw = w; b = g; bIsCand = isC; }
+    }
+    return b;
+  }
+
+  /* 장면 이미지 위에 발판별 클릭 영역을 얹는다 */
+  var pf = {};
+  HOT.forEach(function(p, i){
+    var b = document.createElement("button");
+    b.className = "hot";
+    b.setAttribute("aria-label", LABELS[i] + " 발판");
+    b.style.cssText = "--x:" + p[0] + "%;--y:" + p[1] + "%;--w:" + HOT_W + "%;--h:" + HOT_H + "%";
+    b.addEventListener("click", function(){ toggle(i); });
+    els.scene.appendChild(b);
+    pf[i] = b;
+  });
+
+  /* 슬라임 수 버튼 — 5명이 다 올라가 있으면 1~4 만 나온다.
+     5개 전부 맞으면 슬라임이 아예 안 나오고 통과하므로 별도 버튼으로 둔다. */
+  var slime = {};
+  for (var k = 0; k <= 4; k++) (function(n){
+    var dots = n ? new Array(n + 1).join('<img src="img/slime.png" alt="">')
+                 : '<span class="none">안 나옴</span>';
+    var b = document.createElement("button");
+    b.className = "slime";
+    b.innerHTML = '<span class="n">' + n + '마리</span><span class="dots">' + dots + '</span>';
+    b.addEventListener("click", function(){ answer(n); });
+    els.slimeRow.appendChild(b);
+    slime[n] = b;
+  })(k);
+
+  /* 후보 126칸 */
+  var cells = {};
+  ALL.forEach(function(mask){
+    var b = document.createElement("button");
+    b.className = "cell3";
+    b.textContent = txt(mask);
+    b.addEventListener("click", function(){
+      sel = mask;
+      say(txt(mask) + " 로 배치했습니다.");
+      render();
+    });
+    els.grid.appendChild(b);
+    cells[mask] = b;
+  });
+
+  function say(t, kind){
+    els.msg.textContent = t || "";
+    els.msg.className = "msg" + (kind ? " " + kind : "");
+  }
+
+  function toggle(i){
+    var bit = 1 << i;
+    if (sel & bit) { sel &= ~bit; say(""); }
+    else if (pc(sel) >= PICK) { say("이미 5명이 올라가 있습니다. 한 명을 먼저 내려 주세요.", "warn"); render(); return; }
+    else { sel |= bit; say(""); }
+    render();
+  }
+
+  function render(){
+    var n = pc(sel), full = n === PICK;
+    var done = alive.length === 1, dead = alive.length === 0;
+
+    for (var i = 0; i < 9; i++) pf[i].classList.toggle("on", !!(sel & (1 << i)));
+
+    els.note.innerHTML = full
+      ? "배치 완료 — <b>" + txt(sel) + "</b>"
+      : "발판을 눌러 파티원을 올리세요 — <b>" + n + " / 5</b>";
+
+    els.step.textContent = ORD[Math.min(hist.length + 1, 10)] + " 시도";
+    els.combo.textContent = n ? txt(sel) : "─";
+    els.combo.classList.toggle("pending", !full);
+    els.apply.hidden = dead || done || !rec || sel === rec;
+    els.apply.textContent = "추천 " + (rec ? txt(rec) : "") + " 로 맞추기";
+    els.back.disabled = hist.length === 0;
+
+    /* 남은 후보가 실제로 만들 수 있는 슬라임 수만 활성화 */
+    var can = {};
+    if (n) for (var a = 0; a < alive.length; a++) can[pc(alive[a] & sel)] = 1;
+    for (var s = 0; s <= 4; s++) slime[s].disabled = dead || done || !n || !can[s];
+
+    if (dead) {
+      els.askLabel.innerHTML = "남은 후보가 없습니다. <b>한 단계 뒤로</b> 돌아가 슬라임 수를 다시 확인해 주세요.";
+    } else if (done) {
+      els.askLabel.innerHTML = "후보가 하나 남았습니다 — 정답은 <b>" + txt(alive[0]) + "</b> 입니다.";
+    } else if (!n) {
+      els.askLabel.innerHTML = "발판을 골라야 슬라임 수를 입력할 수 있습니다.";
+    } else if (!full) {
+      els.askLabel.innerHTML = "지금 <b>" + n + "명</b>만 올라가 있습니다. 5명을 모두 올리는 게 정확합니다.";
+    } else {
+      els.askLabel.innerHTML = "이 배치로 소환된 슬라임은 몇 마리였나요?";
+    }
+
+    els.candCount.textContent = "남은 후보 " + alive.length + " · 지워짐 " + (ALL.length - alive.length);
+    ALL.forEach(function(mask){
+      var c = cells[mask], isAlive = alive.indexOf(mask) >= 0;
+      c.className = "cell3" + (mask === sel ? " now" : "");
+      c.hidden = !isAlive;
+      c.disabled = !isAlive;
+    });
+    els.grid.hidden = dead;
+    els.empty.hidden = !dead;
+
+    els.trail.innerHTML = '<span class="t-lbl">기록</span>';
+    if (!hist.length) {
+      var e = document.createElement("span");
+      e.className = "t-lbl"; e.textContent = "아직 없음";
+      els.trail.appendChild(e);
+    }
+    hist.forEach(function(h){
+      var c = document.createElement("code");
+      c.textContent = txt(h.sel);
+      els.trail.appendChild(c);
+      var t = document.createElement("span");
+      t.className = "tag some";
+      t.textContent = h.k + "마리";
+      els.trail.appendChild(t);
+    });
+  }
+
+  function answer(k){
+    if (!pc(sel) || alive.length <= 1) return;
+    hist.push({alive:alive.slice(), sel:sel, k:k});
+    var before = alive.length, g = sel;
+    alive = alive.filter(function(c){ return pc(c & g) === k; });
+    var removed = before - alive.length;
+
+    if (alive.length === 0) {
+      say("후보가 모두 사라졌습니다. 앞서 센 슬라임 수 중에 잘못된 게 있는 것 같습니다.", "warn");
+    } else {
+      rec = best(alive);
+      sel = rec;
+      if (alive.length === 1) say("후보 " + removed + "개를 지웠습니다. 정답은 " + txt(alive[0]) + " 입니다.", "good");
+      else say("후보 " + removed + "개를 지웠습니다. 남은 후보 " + alive.length + "가지, 다음 추천은 " + txt(rec) + ".", "good");
+    }
+    render();
+  }
+
+  var infoBtn = document.getElementById("infoBtn"), infoPop = document.getElementById("infoPop");
+  if (infoBtn) infoBtn.addEventListener("click", function(){
+    var open = infoPop.hidden;
+    infoPop.hidden = !open;
+    infoBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  els.scan.addEventListener("click", function(){
+    var b = BOTS[scanIdx % BOTS.length];
+    scanIdx++;
+    sel = TOPMASK | (1 << b);
+    say("위 4개 고정 + " + LABELS[b] + " 배치입니다. 슬라임 수를 세어 누르세요.");
+    render();
+  });
+
+  els.apply.addEventListener("click", function(){
+    if (!rec) return;
+    sel = rec;
+    say("추천 배치 " + txt(rec) + " 로 맞췄습니다.");
+    render();
+  });
+
+  els.back.addEventListener("click", function(){
+    var h = hist.pop();
+    if (!h) return;
+    alive = h.alive;
+    sel = h.sel;
+    rec = best(alive);
+    say("한 단계 되돌렸습니다. 남은 후보 " + alive.length + "가지.");
+    render();
+  });
+
+  els.reset.addEventListener("click", function(){
+    alive = ALL.slice(); hist = []; sel = 0; scanIdx = 0; rec = null;
+    say("초기화했습니다. 남은 후보 126가지.");
+    render();
+  });
+
+  render();
 })();
 </script>
 
