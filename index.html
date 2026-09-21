@@ -267,18 +267,16 @@
     padding:0;cursor:pointer;
     transition:background .15s,border-color .15s,box-shadow .15s;
   }
-  .hot:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.8)}
+  /* 장면에 없는 색이라야 눈에 박힌다 — 하늘(청록)·바위(회색)·흙(주황)·풀(연두)
+     어디에도 없는 마젠타. 바깥의 어두운 테는 구름 위에서도 윤곽을 잡아주고,
+     안쪽은 거의 비워 둬야 발판에 적힌 글자가 그대로 읽힌다 */
+  .hot:hover{background:rgba(255,46,146,.07);border-color:rgba(255,46,146,.5)}
   .hot.on{
-    background:rgba(24,158,152,.26);border-color:#46E6DC;
-    box-shadow:0 0 15px rgba(70,230,220,.8), inset 0 0 20px rgba(70,230,220,.3);
+    background:rgba(255,46,146,.1);border-width:3px;border-color:#FF2E92;
+    box-shadow:0 0 0 2px rgba(26,0,14,.5), 0 0 18px rgba(255,46,146,.95);
   }
-  /* 현재 배치 안내 — 장면 위쪽, 복사 버튼은 오른쪽 끝
-     ::before 는 버튼과 같은 폭의 빈자리 — 안내문을 장면 한가운데에 둔다 */
-  .pf-bar{display:flex;align-items:center;gap:10px;margin:0 0 10px}
-  .pf-bar::before{content:"";flex:none;width:52px}
-  .pf-note{flex:1;min-width:0;margin:0;text-align:center;font-size:.82rem;color:var(--ink-2)}
-  .pf-note b{font-family:var(--mono);color:var(--accent)}
-  .pf-copy{flex:none;min-width:52px;padding:4px 8px;text-align:center}
+  /* 가이드 줄 끝 — 지금 배치를 그대로 복사한다 */
+  .combo-copy{flex:none;min-width:52px;padding:4px 8px;text-align:center}
 
   /* 슬라임 상자 */
   .slimebox{position:relative;overflow:hidden;display:flex;flex-direction:column}
@@ -323,7 +321,7 @@
   }
   .slime.win:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
   .sb-body .ctrl-row{flex-wrap:wrap;margin-top:auto;padding-top:14px}
-  .sb-body .ghost{flex:1 1 auto;text-align:center}
+  .sb-body .ctrl-row .ghost{flex:1 1 auto;text-align:center}
   .cands-body{padding:14px 18px 16px}
 
   .grid3{
@@ -409,10 +407,6 @@
     <div class="s3-top">
       <section class="panel board3">
         <div class="board-body">
-          <div class="pf-bar">
-            <p class="pf-note" id="pfNote">발판을 눌러 파티원을 올리세요 — <b>0 / 5</b></p>
-            <button class="ghost pf-copy" id="copy3" type="button">복사</button>
-          </div>
           <div class="pf-scene" id="pfScene">
             <img class="scene-bg" src="img/scene3.webp" alt="아모리아 파티퀘스트 3단계 발판 9개">
           </div>
@@ -435,6 +429,7 @@
           <div class="guide-top">
             <span class="step-chip" id="step3">1번째 시도</span>
             <span class="guide-combo pending" id="combo3">─</span>
+            <button class="ghost combo-copy" id="copy3" type="button">복사</button>
           </div>
           <button class="apply" id="apply3" hidden>추천 배치로 맞추기</button>
 
@@ -815,7 +810,6 @@
 
   var els = {
     scene:document.getElementById("pfScene"),
-    note:document.getElementById("pfNote"),
     step:document.getElementById("step3"),
     combo:document.getElementById("combo3"),
     apply:document.getElementById("apply3"),
@@ -906,10 +900,6 @@
     var done = alive.length === 1, dead = alive.length === 0;
 
     for (var i = 0; i < 9; i++) pf[i].classList.toggle("on", !!(sel & (1 << i)));
-
-    els.note.innerHTML = full
-      ? "배치 완료 — <b>" + txt(sel) + "</b>"
-      : "발판을 눌러 파티원을 올리세요 — <b>" + n + " / 5</b>";
 
     els.step.textContent = ORD[Math.min(hist.length + 1, 10)] + " 시도";
     els.combo.textContent = n ? txt(sel) : "─";
