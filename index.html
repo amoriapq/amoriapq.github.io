@@ -275,8 +275,10 @@
     background:rgba(255,46,146,.1);border-width:3px;border-color:#FF2E92;
     box-shadow:0 0 0 2px rgba(26,0,14,.5), 0 0 18px rgba(255,46,146,.95);
   }
-  /* 가이드 줄 끝 — 지금 배치를 그대로 복사한다 */
-  .combo-copy{flex:none;min-width:52px;padding:4px 8px;text-align:center}
+  /* 가이드 줄 끝 — 지금 배치를 그대로 복사한다.
+     margin-left:auto 로 오른쪽 끝에 못박아, 고른 발판 수에 따라
+     알파벳 길이가 줄었다 늘었다 해도 버튼은 제자리를 지킨다 */
+  .combo-copy{flex:none;margin-left:auto;min-width:52px;padding:4px 8px;text-align:center}
 
   /* 슬라임 상자 */
   .slimebox{position:relative;overflow:hidden;display:flex;flex-direction:column}
