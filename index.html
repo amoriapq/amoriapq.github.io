@@ -50,7 +50,13 @@
     font-size:14px;line-height:1.6;
     padding-inline:16px;padding-block:28px 48px;
   }
-  .wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+  .wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+  /* 해·별·달은 왼쪽, 분기 가이드는 오른쪽 */
+  .stage{
+    display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);
+    gap:20px;align-items:start;
+  }
+  @media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}}
 
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
   h1{font-size:clamp(1.25rem,4vw,1.6rem);font-weight:700;margin:0;text-wrap:balance}
@@ -240,6 +246,7 @@
     </div>
   </header>
 
+  <div class="stage">
   <section class="panel board">
     <div class="board-body">
       <div class="ladders" id="ladders"></div>
@@ -289,6 +296,7 @@
       <b>전부 틀림</b>이면 한 자리라도 겹치는 후보가 지워집니다. 시도한 배치는 어느 쪽이든 함께 지워집니다.
     </p>
   </section>
+  </div>
 </div>
 
 <script>
