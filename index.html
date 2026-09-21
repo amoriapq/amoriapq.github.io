@@ -53,20 +53,13 @@
   .wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
   /* 해·별·달은 왼쪽, 분기 가이드는 오른쪽 */
   .stage{
-    display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);
-    gap:20px;align-items:start;
+    display:grid;grid-template-columns:minmax(330px,430px) minmax(0,1fr);
+    gap:20px;align-items:stretch;
   }
   @media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}}
 
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
   h1{font-size:clamp(1.25rem,4vw,1.6rem);font-weight:700;margin:0;text-wrap:balance}
-  .remain-badge{
-    display:flex;align-items:baseline;gap:8px;background:var(--surface);
-    border:1px solid var(--line);border-radius:3px;padding:8px 14px;box-shadow:var(--shadow);
-  }
-  .remain-badge .lbl{font-size:.74rem;color:var(--muted)}
-  .remain-badge .num{font-family:var(--mono);font-weight:700;font-size:1.6rem;line-height:1;color:var(--accent)}
-
   .panel{background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow)}
   .panel-head{
     display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
@@ -76,11 +69,14 @@
   .panel-head .hint{font-size:.76rem;color:var(--muted)}
 
   /* ---------- 해·별·달 + 로프 ---------- */
-  .board-body{padding:14px 14px 16px}
+  /* 오른쪽 가이드와 높이를 맞추고, 남는 높이는 하늘이 흡수한다 */
+  .panel.board{display:flex;flex-direction:column}
+  .board-body{padding:14px 14px 16px;flex:1;display:flex;flex-direction:column;min-height:0}
   /* 하늘 배경은 해·별·달이 있는 이 상자에만 */
   .ladders{
+    flex:1;
     display:grid;grid-template-columns:repeat(3,1fr);
-    gap:clamp(6px,2vw,20px);align-items:end;
+    gap:clamp(6px,2vw,20px);align-items:start;
     background:#3E2B42 url("img/sky.webp") center center / cover no-repeat;
     border:1px solid var(--line-strong);border-radius:3px;
     padding:14px clamp(6px,2vw,14px) 18px;
@@ -88,7 +84,7 @@
   .lane{display:flex;flex-direction:column;align-items:center}
   .controls{
     display:grid;grid-template-columns:repeat(3,1fr);
-    gap:clamp(6px,2vw,20px);padding:14px 6px 4px;
+    gap:clamp(4px,1.5vw,14px);padding:14px 4px 4px;
   }
   .ctl{display:flex;flex-direction:column;align-items:center;gap:8px}
 
@@ -141,16 +137,17 @@
   .pips i{width:7px;height:7px;border-radius:50%;background:var(--line-strong);opacity:.35}
   .pips i.on{background:var(--accent);opacity:1}
 
-  .btns{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
-  .btn-group{display:flex;gap:4px;flex-wrap:nowrap}
+  /* min − + max 를 한 줄에 — 네 칸이 레인 폭을 똑같이 나눠 갖는다 */
+  .btns{display:flex;gap:3px;justify-content:center;flex-wrap:nowrap;width:100%}
+  .btn-group{display:contents}
   button{font-family:inherit;cursor:pointer}
   .step{
-    min-width:27px;height:28px;padding:0 3px;
+    flex:1 1 0;min-width:0;height:28px;padding:0 2px;
     border:1px solid var(--line-strong);border-radius:2px;background:var(--surface);color:var(--ink);
-    font-family:var(--mono);font-size:.95rem;font-weight:700;line-height:1;
+    font-family:var(--mono);font-size:.92rem;font-weight:700;line-height:1;
     transition:background .14s,border-color .14s,color .14s;
   }
-  .step.wide{min-width:34px;font-size:.7rem}
+  .step.wide{font-size:.62rem;letter-spacing:0}
   .step:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
   .step:disabled{opacity:.3;cursor:not-allowed}
   :is(button,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -240,10 +237,6 @@
     <div>
       <h1>아모리아 파티퀘스트 도우미</h1>
     </div>
-    <div class="remain-badge">
-      <span class="lbl">남은 후보</span>
-      <span class="num" id="remainNum">21</span>
-    </div>
   </header>
 
   <div class="stage">
@@ -331,7 +324,6 @@
   var els = {
     ladders:document.getElementById("ladders"),
     controls:document.getElementById("controls"),
-    remainNum:document.getElementById("remainNum"),
     stepChip:document.getElementById("stepChip"),
     guideCombo:document.getElementById("guideCombo"),
     applyBtn:document.getElementById("applyBtn"),
@@ -461,7 +453,6 @@
     els.stepChip.textContent = ORDINAL[Math.min(history.length + 1, 8)] + " 시도";
     els.guideCombo.textContent = dash(cur);
     els.guideCombo.classList.toggle("pending", !usable);
-    els.remainNum.textContent = alive.length;
     els.applyBtn.hidden = dead || done || cur === rec;
     els.applyBtn.textContent = "추천 " + dash(rec) + " 로 맞추기";
     els.someBtn.disabled = !usable || done || dead;
