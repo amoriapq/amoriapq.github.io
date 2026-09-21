@@ -244,8 +244,10 @@
   /* 장면 + 슬라임 상자를 나란히, 조합은 그 아래 */
   .stage3{display:flex;flex-direction:column;gap:20px}
   /* 좌우 상자 높이를 맞춘다 */
+  /* 오른쪽 상자 폭은 "1번째 시도 + 알파벳 + 복사" 한 줄이 들어가는 크기를 밑돌지 않게.
+     좁으면 시도 칸이 윗줄로 튕겨 나가 줄이 엇갈린다 */
   .s3-top{
-    display:grid;grid-template-columns:minmax(0,1fr) clamp(268px,27%,372px);
+    display:grid;grid-template-columns:minmax(0,1fr) clamp(392px,30%,412px);
     gap:20px;align-items:stretch;
   }
   @media (max-width:900px){.s3-top{grid-template-columns:minmax(0,1fr)}}
@@ -275,10 +277,12 @@
     background:rgba(255,46,146,.1);border-width:3px;border-color:#FF2E92;
     box-shadow:0 0 0 2px rgba(26,0,14,.5), 0 0 18px rgba(255,46,146,.95);
   }
-  /* 가이드 줄 끝 — 지금 배치를 그대로 복사한다.
-     margin-left:auto 로 오른쪽 끝에 못박아, 고른 발판 수에 따라
-     알파벳 길이가 줄었다 늘었다 해도 버튼은 제자리를 지킨다 */
-  .combo-copy{flex:none;margin-left:auto;min-width:52px;padding:4px 8px;text-align:center}
+  /* 알파벳과 복사 버튼은 한 덩어리 — 줄이 좁아 밀려나더라도
+     버튼만 따로 떨어지지 않고 알파벳 바로 오른쪽에 붙어 다닌다 */
+  #tab-s3 .guide-top{gap:10px}
+  .combo-wrap{display:inline-flex;align-items:center;gap:9px}
+  /* min-width 는 "복사됨" 기준 — 눌렀을 때 버튼 폭이 흔들리지 않게 */
+  .combo-copy{flex:none;min-width:54px;padding:3px 8px;font-size:.72rem;text-align:center}
 
   /* 슬라임 상자 */
   .slimebox{position:relative;overflow:hidden;display:flex;flex-direction:column}
@@ -430,8 +434,10 @@
 
           <div class="guide-top">
             <span class="step-chip" id="step3">1번째 시도</span>
-            <span class="guide-combo pending" id="combo3">─</span>
-            <button class="ghost combo-copy" id="copy3" type="button">복사</button>
+            <span class="combo-wrap">
+              <span class="guide-combo pending" id="combo3">─</span>
+              <button class="ghost combo-copy" id="copy3" type="button">복사</button>
+            </span>
           </div>
           <button class="apply" id="apply3" hidden>추천 배치로 맞추기</button>
 
