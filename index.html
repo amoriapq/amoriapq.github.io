@@ -272,8 +272,13 @@
     background:rgba(24,158,152,.26);border-color:#46E6DC;
     box-shadow:0 0 15px rgba(70,230,220,.8), inset 0 0 20px rgba(70,230,220,.3);
   }
-  .pf-note{margin:10px 0 0;text-align:center;font-size:.82rem;color:var(--ink-2)}
+  /* 현재 배치 안내 — 장면 위쪽, 복사 버튼은 오른쪽 끝
+     ::before 는 버튼과 같은 폭의 빈자리 — 안내문을 장면 한가운데에 둔다 */
+  .pf-bar{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+  .pf-bar::before{content:"";flex:none;width:52px}
+  .pf-note{flex:1;min-width:0;margin:0;text-align:center;font-size:.82rem;color:var(--ink-2)}
   .pf-note b{font-family:var(--mono);color:var(--accent)}
+  .pf-copy{flex:none;min-width:52px;padding:4px 8px;text-align:center}
 
   /* 슬라임 상자 */
   .slimebox{position:relative;overflow:hidden;display:flex;flex-direction:column}
@@ -404,10 +409,13 @@
     <div class="s3-top">
       <section class="panel board3">
         <div class="board-body">
+          <div class="pf-bar">
+            <p class="pf-note" id="pfNote">발판을 눌러 파티원을 올리세요 — <b>0 / 5</b></p>
+            <button class="ghost pf-copy" id="copy3" type="button">복사</button>
+          </div>
           <div class="pf-scene" id="pfScene">
             <img class="scene-bg" src="img/scene3.webp" alt="아모리아 파티퀘스트 3단계 발판 9개">
           </div>
-          <p class="pf-note" id="pfNote">발판을 눌러 파티원을 올리세요 — <b>0 / 5</b></p>
         </div>
       </section>
 
@@ -435,7 +443,6 @@
           <p class="msg" id="msg3" role="status" aria-live="polite"></p>
 
           <div class="ctrl-row">
-            <button class="ghost" id="scan3">스캔 배치</button>
             <button class="ghost" id="back3">한 단계 뒤로</button>
             <button class="ghost" id="reset3">초기화</button>
           </div>
@@ -772,14 +779,15 @@
 /* ================= 3단계 — 9개 발판 중 5개 ================= */
 (function(){
   var LABELS = ["A","2","B","3","C","6","D","9","5"];
-  var TOPS = [0,1,2,3], BOTS = [4,5,6,7,8];
-  /* 장면 이미지(2000x872) 안에서 각 발판이 차지하는 위치 — 퍼센트 */
+  /* 장면 이미지(2000x872) 안에서 발판 한 벌의 왼쪽 위 모서리 — 퍼센트.
+     받침돌부터 스프링 위 철판까지 발판을 통째로 감싼다 */
   var HOT = [
-    [17.25,22.4],[34,22.4],[50.5,22.4],[67,22.4],
-    [8.75,57.9],[25.5,57.9],[42,57.9],[58.75,57.9],[75.25,57.9]
+    [17.50,13.07],[34.40,13.07],[50.80,13.07],[67.05,13.07],
+    [9.00,48.39],[25.65,48.39],[42.35,48.39],[58.90,48.39],[75.40,48.39]
   ];
-  var HOT_W = 14.5, HOT_H = 16;
-  var TOPMASK = 0xF;          // 위 발판 4개
+  var HOT_W = 16, HOT_H = 24.77;
+  var START = 0x1F;           // 기본 배치 — A 2 B 3 C
+  var UPPER = 4;              // 인덱스 0~3 이 위 발판
   var PICK = 5;
 
   function pc(x){ var c = 0; while (x) { c += x & 1; x >>>= 1; } return c; }
@@ -789,11 +797,21 @@
     return s.join(" ");
   }
 
+  /* 복사용 — 위 발판과 아래 발판을 띄어쓰기로 나눠 적는다 (예: A2B3 C) */
+  function copyTxt(m){
+    var up = "", dn = "";
+    for (var i = 0; i < 9; i++) {
+      if (!(m & (1 << i))) continue;
+      if (i < UPPER) up += LABELS[i]; else dn += LABELS[i];
+    }
+    return up && dn ? up + " " + dn : up + dn;
+  }
+
   /* 9칸 중 5칸을 고르는 126가지를 비트마스크로 */
   var ALL = [];
   for (var m = 0; m < 512; m++) if (pc(m) === PICK) ALL.push(m);
 
-  var sel = 0, alive = ALL.slice(), hist = [], scanIdx = 0, rec = null;
+  var sel = START, alive = ALL.slice(), hist = [], rec = null;
 
   var els = {
     scene:document.getElementById("pfScene"),
@@ -808,7 +826,7 @@
     empty:document.getElementById("empty3"),
     candCount:document.getElementById("cand3"),
     trail:document.getElementById("trail3"),
-    scan:document.getElementById("scan3"),
+    copy:document.getElementById("copy3"),
     back:document.getElementById("back3"),
     reset:document.getElementById("reset3")
   };
@@ -898,6 +916,7 @@
     els.combo.classList.toggle("pending", !full);
     els.apply.hidden = dead || done || !rec || sel === rec;
     els.apply.textContent = "추천 " + (rec ? txt(rec) : "") + " 로 맞추기";
+    els.copy.disabled = !n;
     els.back.disabled = hist.length === 0;
 
     /* 남은 후보가 실제로 만들 수 있는 슬라임 수만 활성화 */
@@ -969,12 +988,35 @@
     infoBtn.setAttribute("aria-expanded", open ? "true" : "false");
   });
 
-  els.scan.addEventListener("click", function(){
-    var b = BOTS[scanIdx % BOTS.length];
-    scanIdx++;
-    sel = TOPMASK | (1 << b);
-    say("위 4개 고정 + " + LABELS[b] + " 배치입니다. 슬라임 수를 세어 누르세요.");
-    render();
+  /* clipboard API 가 막힌 환경(로컬 파일 등)을 위한 예비 경로 */
+  function legacyCopy(t){
+    var ta = document.createElement("textarea");
+    ta.value = t;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  var copyTimer = null;
+  function flashCopy(t){
+    els.copy.textContent = t;
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(function(){ els.copy.textContent = "복사"; }, 1200);
+  }
+
+  els.copy.addEventListener("click", function(){
+    var t = copyTxt(sel);
+    if (!t) return;
+    var ok = function(){ flashCopy("복사됨"); };
+    var no = function(){ if (legacyCopy(t)) ok(); else flashCopy("실패"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(ok, no);
+    } else no();
   });
 
   els.apply.addEventListener("click", function(){
@@ -995,7 +1037,7 @@
   });
 
   els.reset.addEventListener("click", function(){
-    alive = ALL.slice(); hist = []; sel = 0; scanIdx = 0; rec = null;
+    alive = ALL.slice(); hist = []; sel = START; rec = null;
     say("초기화했습니다. 남은 후보 126가지.");
     render();
   });
