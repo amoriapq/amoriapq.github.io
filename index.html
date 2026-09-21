@@ -1,0 +1,596 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>아모리아 파티퀘스트 도우미</title>
+<style>
+  :root{
+    --bg:#EDF1F4;
+    --surface:#FFFFFF;
+    --surface-2:#F5F8FA;
+    --line:#CBD6DE;
+    --line-strong:#9CAFBC;
+    --ink:#16222B;
+    --ink-2:#475B68;
+    --muted:#7C8E9B;
+    --accent:#0E6F73;
+    --accent-ink:#FFFFFF;
+    --accent-soft:#DCEDEC;
+    --accent-line:#5FA5A4;
+    --warn:#8E5411;
+    --warn-soft:#F7ECDB;
+    --diff:#8A3A5C;
+    --diff-soft:#F6E3EA;
+    --shadow:0 1px 0 rgba(22,34,43,.05), 0 10px 26px -18px rgba(22,34,43,.55);
+    --sans:GulimChe, "굴림체", Gulim, "굴림", Dotum, "돋움", sans-serif;
+    --mono:GulimChe, "굴림체", Gulim, "굴림", monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101923; --surface:#18232D; --surface-2:#1E2B36;
+      --line:#2B3B48; --line-strong:#44596B;
+      --ink:#E4EDF3; --ink-2:#AFC2CE; --muted:#7E94A3;
+      --accent:#43B8B1; --accent-ink:#0A1417; --accent-soft:#143330; --accent-line:#2C7D78;
+      --warn:#D8A461; --warn-soft:#2D2416;
+      --diff:#E08BA9; --diff-soft:#331C25;
+      --shadow:0 1px 0 rgba(0,0,0,.3), 0 12px 30px -20px #000;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101923; --surface:#18232D; --surface-2:#1E2B36;
+    --line:#2B3B48; --line-strong:#44596B;
+    --ink:#E4EDF3; --ink-2:#AFC2CE; --muted:#7E94A3;
+    --accent:#43B8B1; --accent-ink:#0A1417; --accent-soft:#143330; --accent-line:#2C7D78;
+    --warn:#D8A461; --warn-soft:#2D2416;
+    --diff:#E08BA9; --diff-soft:#331C25;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 12px 30px -20px #000;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg);
+    color:var(--ink);font-family:var(--sans);
+    font-size:14px;line-height:1.6;
+    padding-inline:16px;padding-block:28px 48px;
+  }
+  .wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  h1{font-size:clamp(1.25rem,4vw,1.6rem);font-weight:700;margin:0;text-wrap:balance}
+  .remain-badge{
+    display:flex;align-items:baseline;gap:8px;background:var(--surface);
+    border:1px solid var(--line);border-radius:3px;padding:8px 14px;box-shadow:var(--shadow);
+  }
+  .remain-badge .lbl{font-size:.74rem;color:var(--muted)}
+  .remain-badge .num{font-family:var(--mono);font-weight:700;font-size:1.6rem;line-height:1;color:var(--accent)}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow)}
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:11px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
+  }
+  .panel-head h2{font-size:.95rem;font-weight:700;margin:0}
+  .panel-head .hint{font-size:.76rem;color:var(--muted)}
+
+  /* ---------- 해·별·달 + 로프 ---------- */
+  .board-body{padding:14px 14px 16px}
+  /* 하늘 배경은 해·별·달이 있는 이 상자에만 */
+  .ladders{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(6px,2vw,20px);align-items:end;
+    background:#3E2B42 url("img/sky.webp") center center / cover no-repeat;
+    border:1px solid var(--line-strong);border-radius:3px;
+    padding:14px clamp(6px,2vw,14px) 18px;
+  }
+  .lane{display:flex;flex-direction:column;align-items:center}
+  .controls{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(6px,2vw,20px);padding:14px 6px 4px;
+  }
+  .ctl{display:flex;flex-direction:column;align-items:center;gap:8px}
+
+  .hang{display:flex;flex-direction:column;align-items:center;transition:filter .25s,opacity .25s}
+  .lane.empty .hang{filter:grayscale(.9);opacity:.45}
+
+  .orn{
+    position:relative;z-index:1;
+    display:flex;align-items:flex-end;justify-content:center;height:clamp(58px,17vw,92px);
+  }
+  .orn img{display:block;max-height:100%;width:auto;filter:drop-shadow(0 4px 8px rgba(20,30,40,.28))}
+
+  /* 원본 픽셀 크기 그대로 — rope1은 6x33 타일 조각이라 늘리면 뭉갠다.
+     덧붙인 조각은 --lift 만큼 그림 뒤로 끌어올려 가려지므로,
+     로프 윗부분은 이어져 보이고 로프 끝(포탈) 높이는 세 자리가 똑같이 맞는다. */
+  .rope{
+    position:relative;z-index:0;
+    display:flex;flex-direction:column;align-items:center;
+    margin-top:calc(-1 * var(--lift, 0px));
+  }
+  .rope img{display:block;height:auto;margin-bottom:-1px;image-rendering:pixelated}
+
+  /* 로프 끝에 매달린 발판 — 바위 위에 풀, 풀에서 식물이 자라고,
+     발판 아래로 빛줄기가 내려가 바닥의 포탈로 이어진다 */
+  .plat{display:flex;flex-direction:column;align-items:center}
+  .plat .plant{
+    display:block;position:relative;z-index:0;margin-bottom:-12px;
+    width:auto;height:auto;
+    max-width:clamp(72px,22vw,98px);max-height:clamp(56px,18vw,84px);
+    filter:drop-shadow(0 2px 3px rgba(20,30,40,.28));
+  }
+  /* 포탈은 타일 바로 아래, 숫자 바로 위 */
+  .lane .portal{display:block;width:auto;height:clamp(87px,24vw,138px);margin-top:-5px}
+  .count{
+    margin-top:-3px;min-width:40px;padding:2px 12px;border-radius:999px;
+    background:var(--accent);color:var(--accent-ink);
+    font-family:var(--mono);font-weight:700;font-size:1.25rem;line-height:1.45;text-align:center;
+    border:2px solid var(--surface);box-shadow:0 2px 7px rgba(20,30,40,.4);
+  }
+  .lane.empty .count{background:var(--line-strong);color:var(--surface)}
+  /* 풀과 바위를 미리 합쳐둔 한 장(foothold.svg)을 쓴다 */
+  .plat .foot{
+    display:block;position:relative;z-index:2;
+    width:clamp(52px,17vw,66px);height:auto;image-rendering:pixelated;
+    filter:drop-shadow(0 4px 6px rgba(30,14,26,.45));
+  }
+
+  .lane-name{font-size:.82rem;font-weight:700;color:var(--ink-2)}
+  .pips{display:flex;gap:3px;height:7px}
+  .pips i{width:7px;height:7px;border-radius:50%;background:var(--line-strong);opacity:.35}
+  .pips i.on{background:var(--accent);opacity:1}
+
+  .btns{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+  .btn-group{display:flex;gap:4px;flex-wrap:nowrap}
+  button{font-family:inherit;cursor:pointer}
+  .step{
+    min-width:27px;height:28px;padding:0 3px;
+    border:1px solid var(--line-strong);border-radius:2px;background:var(--surface);color:var(--ink);
+    font-family:var(--mono);font-size:.95rem;font-weight:700;line-height:1;
+    transition:background .14s,border-color .14s,color .14s;
+  }
+  .step.wide{min-width:34px;font-size:.7rem}
+  .step:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+  .step:disabled{opacity:.3;cursor:not-allowed}
+  :is(button,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- 가이드 ---------- */
+  .guide-body{padding:18px}
+  .guide-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .step-chip{font-size:.76rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 11px;white-space:nowrap}
+  .guide-combo{
+    font-family:var(--mono);font-weight:700;font-size:1.9rem;letter-spacing:.1em;line-height:1;
+    color:var(--accent);transition:color .15s;
+  }
+  .guide-combo.pending{color:var(--muted)}
+  .apply{border:1px solid var(--accent-line);border-radius:2px;background:transparent;color:var(--accent);font-size:.78rem;padding:5px 11px}
+  .apply:hover{background:var(--accent-soft)}
+
+  .ask{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+  .ask-label{font-size:.84rem;color:var(--ink-2);margin:0 0 10px}
+  .ask-row{display:flex;gap:8px;flex-wrap:wrap}
+  .resp{
+    flex:1 1 150px;border-radius:2px;padding:11px 14px;font-size:.92rem;font-weight:700;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;gap:3px;transition:background .14s,border-color .14s,color .14s;
+  }
+  .resp small{font-weight:400;font-size:.74rem;color:var(--muted)}
+  .resp.same:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .resp.same:hover:not(:disabled) small{color:var(--accent)}
+  .resp.diff:hover:not(:disabled){background:var(--diff-soft);border-color:var(--diff);color:var(--diff)}
+  .resp.diff:hover:not(:disabled) small{color:var(--diff)}
+  .resp:disabled{opacity:.35;cursor:not-allowed}
+
+  .msg{font-size:.84rem;min-height:1.4em;margin:12px 0 0;color:var(--ink-2)}
+  .msg.good{color:var(--accent);font-weight:700}
+  .msg.warn{
+    display:flex;align-items:center;gap:9px;
+    color:var(--warn);font-weight:700;font-size:.95rem;
+    background:var(--warn-soft);border:1px solid var(--warn);border-left-width:5px;
+    border-radius:2px;padding:11px 13px;
+  }
+  .msg.warn::before{
+    content:"!";flex:0 0 auto;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--warn);color:var(--warn-soft);
+    font-weight:700;font-size:.85rem;line-height:20px;text-align:center;
+  }
+
+  /* ---------- 21가지 후보 ---------- */
+  .cands{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .cands-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .cands-head .t{font-size:.8rem;font-weight:700;color:var(--ink-2)}
+  .cands-head .c{font-size:.76rem;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+  .cell{
+    font-family:var(--mono);font-weight:700;font-size:.95rem;letter-spacing:.06em;
+    text-align:center;padding:8px 0;
+    border:1px solid var(--line-strong);border-radius:2px;
+    background:var(--surface);color:var(--ink);
+    transition:background .18s,color .18s,border-color .18s,opacity .18s;
+  }
+  .cell.alive:hover{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+  .cell.now{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .cell.now:hover{background:var(--accent);color:var(--accent-ink)}
+  .empty-note{
+    margin:0;padding:18px 0;text-align:center;font-size:.82rem;color:var(--warn);
+    border:1px dashed var(--line-strong);border-radius:3px;background:var(--warn-soft);
+  }
+
+  .trail{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .trail .t-lbl{font-size:.76rem;color:var(--muted)}
+  .trail code{font-family:var(--mono);font-size:.82rem;font-weight:700;background:var(--surface-2);border:1px solid var(--line);border-radius:2px;padding:2px 6px}
+  .trail .tag{font-size:.72rem;padding:1px 6px;border-radius:2px}
+  .trail .tag.some{background:var(--accent-soft);color:var(--accent)}
+  .trail .tag.none{background:var(--diff-soft);color:var(--diff)}
+  .ctrl-row{display:flex;gap:8px;margin-top:14px}
+  .ghost{border:1px solid var(--line-strong);border-radius:2px;background:transparent;color:var(--ink-2);font-size:.78rem;padding:5px 11px}
+  .ghost:hover:not(:disabled){border-color:var(--accent-line);color:var(--accent)}
+  .ghost:disabled{opacity:.35;cursor:not-allowed}
+
+  .foot{padding:0 18px 16px;font-size:.78rem;color:var(--muted);line-height:1.7}
+  .foot code{font-family:var(--mono);color:var(--ink-2)}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>아모리아 파티퀘스트 도우미</h1>
+    </div>
+    <div class="remain-badge">
+      <span class="lbl">남은 후보</span>
+      <span class="num" id="remainNum">21</span>
+    </div>
+  </header>
+
+  <section class="panel board">
+    <div class="board-body">
+      <div class="ladders" id="ladders"></div>
+      <div class="controls" id="controls"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>분기 가이드</h2>
+      <span class="hint">후보를 눌러 직접 고를 수도 있습니다</span>
+    </div>
+    <div class="guide-body">
+      <div class="guide-top">
+        <span class="step-chip" id="stepChip">1번째 시도</span>
+        <span class="guide-combo" id="guideCombo">5-0-0</span>
+        <button class="apply" id="applyBtn" hidden>이 배치로 매달기</button>
+      </div>
+
+      <div class="ask">
+        <p class="ask-label" id="askLabel">이 배치를 시도한 결과는?</p>
+        <div class="ask-row">
+          <button class="resp same" id="someBtn">1개 이상 정답<small>자리 하나라도 맞음</small></button>
+          <button class="resp diff" id="noneBtn">전부 틀림<small>세 자리 모두 틀림</small></button>
+        </div>
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="cands">
+        <div class="cands-head">
+          <span class="t">경우의 수 21가지</span>
+          <span class="c" id="candCount">남은 후보 21 · 지워짐 0</span>
+        </div>
+        <div class="grid" id="grid"></div>
+        <p class="empty-note" id="emptyNote" hidden>남은 후보가 없습니다. 한 단계 뒤로 돌아가 답을 다시 골라 보세요.</p>
+      </div>
+
+      <div class="trail" id="trail"></div>
+
+      <div class="ctrl-row">
+        <button class="ghost" id="backBtn">한 단계 뒤로</button>
+        <button class="ghost" id="resetBtn">초기화</button>
+      </div>
+    </div>
+    <p class="foot">
+      <b>1개 이상 정답</b>이면 그 자리와 하나도 겹치지 않는 후보가,
+      <b>전부 틀림</b>이면 한 자리라도 겹치는 후보가 지워집니다. 시도한 배치는 어느 쪽이든 함께 지워집니다.
+    </p>
+  </section>
+</div>
+
+<script>
+(function(){
+  var TOTAL = 5, LANES = 3;
+  var NAMES = ["해","별","달"];
+  var ORN = ["img/sun.png","img/star.png","img/moon.png"];
+  var PLANT = ["img/plant1.png","img/plant2.png","img/plant3.png"];
+  /* 해·별은 그림 아래 투명 여백이 있어 로프가 끊겨 보인다.
+     조각을 더 붙이고, 늘어난 만큼(조각 33px) 그림 뒤로 끌어올려 높이를 맞춘다. */
+  var ROPE1_H = 33;
+  var ROPES = [5, 5, 3];
+  var LIFT = ROPES.map(function(n){ return (n - Math.min.apply(null, ROPES)) * ROPE1_H; });
+
+  /* 21가지 — 사전식(표시용) */
+  var ALL = [];
+  for (var a = TOTAL; a >= 0; a--)
+    for (var b = TOTAL - a; b >= 0; b--)
+      ALL.push("" + a + b + (TOTAL - a - b));
+
+  /* 동점일 때 고를 순서 — 원본 가이드 도표의 진행 순서 */
+  var PREF = ["500","410","311","320","302","221","122","230","401","203",
+              "131","113","032","140","104","041","212","014","023","050","005"];
+
+  var ORDINAL = ["","1번째","2번째","3번째","4번째","5번째","6번째","7번째","8번째"];
+
+  var state = [5,0,0];       // 지금 매달린 배치 — 가이드 숫자와 항상 같다
+  var alive = ALL.slice();
+  var rec = "500";           // 남은 후보에서 계산한 추천 배치
+  var history = [];          // {alive, state, guess, answer}
+
+  var els = {
+    ladders:document.getElementById("ladders"),
+    controls:document.getElementById("controls"),
+    remainNum:document.getElementById("remainNum"),
+    stepChip:document.getElementById("stepChip"),
+    guideCombo:document.getElementById("guideCombo"),
+    applyBtn:document.getElementById("applyBtn"),
+    askLabel:document.getElementById("askLabel"),
+    someBtn:document.getElementById("someBtn"),
+    noneBtn:document.getElementById("noneBtn"),
+    msg:document.getElementById("msg"),
+    grid:document.getElementById("grid"),
+    emptyNote:document.getElementById("emptyNote"),
+    candCount:document.getElementById("candCount"),
+    trail:document.getElementById("trail"),
+    backBtn:document.getElementById("backBtn"),
+    resetBtn:document.getElementById("resetBtn")
+  };
+
+  function dash(id){ return id[0] + "-" + id[1] + "-" + id[2]; }
+  function placed(){ return state[0] + state[1] + state[2]; }
+  function hit(c, g){ return c[0] === g[0] || c[1] === g[1] || c[2] === g[2]; }
+
+  /* 남은 후보에서 최악의 경우가 가장 작은 배치를 고른다 */
+  function recommend(list){
+    if (list.length <= 1) return list[0];
+    var best = null, bestWorst = Infinity;
+    PREF.forEach(function(g){
+      if (list.indexOf(g) < 0) return;
+      var some = 0, none = 0;
+      list.forEach(function(c){
+        if (c === g) return;
+        if (hit(c, g)) some++; else none++;
+      });
+      var worst = Math.max(some, none);
+      if (worst < bestWorst) { bestWorst = worst; best = g; }
+    });
+    return best || list[0];
+  }
+
+  /* ---------- 레인: 해·별·달이 위, 로프가 아래 ---------- */
+  var laneRefs = [];
+  for (var i = 0; i < LANES; i++) {
+    var lane = document.createElement("div");
+    lane.className = "lane";
+    lane.style.setProperty("--lift", LIFT[i] + "px");
+    var rope = "";
+    for (var s = 0; s < ROPES[i]; s++) rope += '<img src="img/rope1.png" alt="">';
+    rope += '<img class="cap" src="img/rope2.png" alt="">';
+
+    lane.innerHTML =
+      '<div class="hang">' +
+        '<div class="orn"><img src="' + ORN[i] + '" alt="' + NAMES[i] + '"></div>' +
+        '<div class="rope">' + rope + '</div>' +
+        '<div class="plat">' +
+          '<img class="plant" src="' + PLANT[i] + '" alt="">' +
+          '<img class="foot" src="img/foothold.svg" alt="">' +
+        '</div>' +
+        '<img class="portal" src="img/portal.gif" alt="">' +
+        '<span class="count">0</span>' +
+      '</div>';
+    els.ladders.appendChild(lane);
+
+    /* 조작부는 바닥 아래 — 장면을 가로지르지 않도록 따로 둔다 */
+    var ctl = document.createElement("div");
+    ctl.className = "ctl";
+    ctl.innerHTML =
+      '<span class="lane-name">' + NAMES[i] + '</span>' +
+      '<span class="pips"></span>' +
+      '<div class="btns">' +
+        '<span class="btn-group">' +
+          '<button class="step wide" data-act="min" data-i="' + i + '" aria-label="' + NAMES[i] + ' 비우기">min</button>' +
+          '<button class="step" data-act="dec" data-i="' + i + '" aria-label="' + NAMES[i] + ' 한 명 줄이기">−</button>' +
+        '</span>' +
+        '<span class="btn-group">' +
+          '<button class="step" data-act="inc" data-i="' + i + '" aria-label="' + NAMES[i] + ' 한 명 늘리기">+</button>' +
+          '<button class="step wide" data-act="max" data-i="' + i + '" aria-label="' + NAMES[i] + '에 대기 인원 모두 매달기">max</button>' +
+        '</span>' +
+      '</div>';
+    els.controls.appendChild(ctl);
+
+    laneRefs.push({
+      lane:lane, count:lane.querySelector(".count"), pips:ctl.querySelector(".pips"),
+      min:ctl.querySelector('[data-act="min"]'), dec:ctl.querySelector('[data-act="dec"]'),
+      inc:ctl.querySelector('[data-act="inc"]'), max:ctl.querySelector('[data-act="max"]')
+    });
+    for (var p = 0; p < TOTAL; p++) laneRefs[i].pips.appendChild(document.createElement("i"));
+  }
+
+  /* ---------- 후보 21칸 ---------- */
+  var cellRefs = {};
+  ALL.forEach(function(id){
+    var b = document.createElement("button");
+    b.className = "cell";
+    b.textContent = dash(id);
+    b.title = id.split("").map(function(n, k){ return NAMES[k] + " " + n + "명"; }).join(" · ");
+    b.addEventListener("click", function(){
+      if (alive.indexOf(id) < 0) return;
+      state = id.split("").map(Number);
+      say(dash(id) + " 로 매달았습니다.");
+      render();
+    });
+    els.grid.appendChild(b);
+    cellRefs[id] = b;
+  });
+
+  /* ---------- 렌더 ---------- */
+  function say(text, kind){
+    els.msg.textContent = text;
+    els.msg.className = "msg" + (kind ? " " + kind : "");
+  }
+
+  function render(){
+    var waiting = TOTAL - placed();
+
+    for (var i = 0; i < LANES; i++) {
+      var r = laneRefs[i], n = state[i];
+      r.count.textContent = n;
+      r.lane.classList.toggle("empty", n === 0);
+      for (var p = 0; p < TOTAL; p++) r.pips.children[p].classList.toggle("on", p < n);
+      r.min.disabled = n === 0;
+      r.dec.disabled = n === 0;
+      r.inc.disabled = waiting === 0;
+      r.max.disabled = waiting === 0;
+    }
+    var done = alive.length === 1, dead = alive.length === 0;
+    var cur = state.join("");
+    var full = waiting === 0;
+    var usable = full && alive.indexOf(cur) >= 0;
+
+    els.stepChip.textContent = ORDINAL[Math.min(history.length + 1, 8)] + " 시도";
+    els.guideCombo.textContent = dash(cur);
+    els.guideCombo.classList.toggle("pending", !usable);
+    els.remainNum.textContent = alive.length;
+    els.applyBtn.hidden = dead || done || cur === rec;
+    els.applyBtn.textContent = "추천 " + dash(rec) + " 로 맞추기";
+    els.someBtn.disabled = !usable || done || dead;
+    els.noneBtn.disabled = !usable || done || dead;
+    els.backBtn.disabled = history.length === 0;
+
+    if (dead) {
+      els.askLabel.innerHTML = "남은 후보가 없습니다. 답을 잘못 고른 곳이 있으니 <b>한 단계 뒤로</b> 돌아가 보세요.";
+    } else if (done) {
+      els.askLabel.innerHTML = "후보가 하나 남았습니다 — 정답은 <b>" + dash(alive[0]) + "</b> 입니다.";
+    } else if (!full) {
+      els.askLabel.innerHTML = "다섯 명을 모두 매달면 답을 고를 수 있습니다.";
+    } else if (!usable) {
+      els.askLabel.innerHTML = "<b>" + dash(cur) + "</b> 는 이미 지워진 후보입니다. 남은 후보 중에서 고르세요.";
+    } else {
+      els.askLabel.innerHTML = "이 배치를 시도한 결과는?";
+    }
+
+    els.candCount.textContent = "남은 후보 " + alive.length + " · 지워짐 " + (ALL.length - alive.length);
+
+    ALL.forEach(function(id){
+      var c = cellRefs[id], isAlive = alive.indexOf(id) >= 0;
+      c.className = "cell alive" + (id === cur ? " now" : "");
+      c.hidden = !isAlive;          // 지워진 후보는 아예 사라진다
+      c.disabled = !isAlive;
+    });
+    els.grid.hidden = dead;
+    els.emptyNote.hidden = !dead;
+
+    els.trail.innerHTML = '<span class="t-lbl">경로</span>';
+    if (!history.length) {
+      var e = document.createElement("span");
+      e.className = "t-lbl";
+      e.textContent = "아직 없음";
+      els.trail.appendChild(e);
+    }
+    history.forEach(function(h){
+      var c = document.createElement("code");
+      c.textContent = dash(h.guess);
+      els.trail.appendChild(c);
+      var t = document.createElement("span");
+      t.className = "tag " + h.answer;
+      t.textContent = h.answer === "some" ? "1개 이상" : "전부 틀림";
+      els.trail.appendChild(t);
+    });
+  }
+
+  /* ---------- 동작 ---------- */
+  els.controls.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-act]");
+    if (!btn || btn.disabled) return;
+    var i = +btn.dataset.i, waiting = TOTAL - placed(), act = btn.dataset.act;
+    if (act === "inc" && waiting > 0) state[i]++;
+    else if (act === "dec" && state[i] > 0) state[i]--;
+    else if (act === "max") state[i] += waiting;
+    else if (act === "min") state[i] = 0;
+
+    var left = TOTAL - placed(), key = state.join("");
+    if (left > 0) {
+      say(left + "명이 아직 매달리지 않았습니다. 다섯 명을 모두 매달아 주세요.", "warn");
+    } else if (alive.indexOf(key) >= 0) {
+      say(dash(key) + " 로 매달았습니다.");
+    } else {
+      say(dash(key) + " 는 이미 지워진 후보입니다. 남은 후보 중에서 고르세요.", "warn");
+    }
+    render();
+  });
+
+  els.applyBtn.addEventListener("click", function(){
+    state = rec.split("").map(Number);
+    say("추천 배치 " + dash(rec) + " 로 맞췄습니다.");
+    render();
+  });
+
+  function answer(kind){
+    var g = state.join("");
+    if (alive.length <= 1 || placed() !== TOTAL || alive.indexOf(g) < 0) return;
+    history.push({alive:alive.slice(), state:state.slice(), guess:g, answer:kind});
+    var before = alive.length;
+    alive = alive.filter(function(c){
+      if (c === g) return false;
+      return kind === "some" ? hit(c, g) : !hit(c, g);
+    });
+    var removed = before - alive.length;
+
+    if (alive.length === 0) {
+      say("후보가 모두 사라졌습니다. 앞선 답 중에 잘못된 게 있는 것 같습니다.", "warn");
+    } else {
+      rec = recommend(alive);
+      state = rec.split("").map(Number);   // 다이얼도 다음 수로 함께 이동
+      if (alive.length === 1)
+        say("후보 " + removed + "개를 지웠습니다. 정답은 " + dash(alive[0]) + " 입니다.", "good");
+      else
+        say("후보 " + removed + "개를 지웠습니다. 남은 후보 " + alive.length + "가지, 다음 시도는 " + dash(rec) + ".", "good");
+    }
+    render();
+  }
+  els.someBtn.addEventListener("click", function(){ answer("some"); });
+  els.noneBtn.addEventListener("click", function(){ answer("none"); });
+
+  els.backBtn.addEventListener("click", function(){
+    var h = history.pop();
+    if (!h) return;
+    alive = h.alive;
+    state = h.state.slice();
+    rec = recommend(alive);
+    say("한 단계 되돌렸습니다. 남은 후보 " + alive.length + "가지.");
+    render();
+  });
+
+  els.resetBtn.addEventListener("click", function(){
+    alive = ALL.slice();
+    history = [];
+    rec = "500";
+    state = [5,0,0];
+    say("초기화했습니다. 남은 후보 21가지.");
+    render();
+  });
+
+  /* ---------- 시작 ---------- */
+  function start(r){
+    if (r && r.alive && r.alive.length) {
+      alive = r.alive.slice();
+      history = (r.history || []).slice();
+      rec = recommend(alive);
+      state = (r.state || rec.split("").map(Number)).slice();
+    }
+    render();
+  }
+  if (window.claude && window.claude.hot) {
+    window.claude.hot.snapshot(function(){
+      return {alive:alive.slice(), history:history.slice(), state:state.slice()};
+    });
+  }
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+  else start((window.claude && window.claude.hot && window.claude.hot.data) || null);
+})();
+</script>
+
+</body></html>
