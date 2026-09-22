@@ -867,14 +867,14 @@ function isR(e){
     return s.join(" ");
   }
 
-  /* 복사용 — 위 발판과 아래 발판을 띄어쓰기로 나눠 적는다 (예: A2B3 C) */
+  /* 복사용 — 위 발판과 아래 발판을 " / " 로 나눠 적는다 (예: A2B3 / C) */
   function copyTxt(m){
     var up = "", dn = "";
     for (var i = 0; i < 9; i++) {
       if (!(m & (1 << i))) continue;
       if (i < UPPER) up += LABELS[i]; else dn += LABELS[i];
     }
-    return up && dn ? up + " " + dn : up + dn;
+    return up && dn ? up + " / " + dn : up + dn;
   }
 
   /* 9칸 중 5칸을 고르는 126가지를 비트마스크로 */
