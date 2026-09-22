@@ -343,6 +343,36 @@
   .cell3:hover{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
   .cell3.now{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 
+  /* ---------- 키보드 단축키 ---------- */
+  kbd{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:21px;height:21px;padding:0 5px;
+    border:1px solid var(--accent-line);border-bottom-width:2px;border-radius:4px;
+    background:var(--surface);color:var(--accent);
+    font-family:var(--mono);font-weight:700;font-size:.74rem;line-height:1;white-space:nowrap;
+  }
+  /* 스테이지 맨 위 띠 — 들어오자마자 눈에 걸리는 자리 */
+  .keybar{
+    display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;
+    padding:10px 14px;border-radius:4px;
+    border:1px solid var(--accent-line);border-left-width:4px;
+    background:var(--accent-soft);font-size:.8rem;color:var(--ink-2);
+  }
+  #tab-s2 .keybar{grid-column:1/-1}
+  .kb-title{font-weight:700;color:var(--accent);white-space:nowrap}
+  /* 항목 사이를 넉넉히 띄우고 세로줄로 끊는다 — 안 그러면 옆 항목의 키캡과
+     이 항목의 설명이 한 덩어리로 읽힌다 */
+  .kb-item{
+    display:flex;align-items:center;gap:7px;white-space:nowrap;
+    border-left:1px solid var(--accent-line);padding-left:18px;
+  }
+  /* 키캡끼리 붙여 놓으면 동시에 누르는 조합키처럼 읽힌다 — 낱말로 떼어 준다 */
+  .kb-or{font-weight:400;font-size:.72rem;color:var(--muted);padding:0 1px}
+  .ghost.has-key{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+  /* 버튼 위에 얹는 키캡 — 띠를 안 본 사람도 누르려다 보게 된다 */
+  .resp .keys{display:flex;gap:4px;margin-top:4px}
+  .slime .lbl{display:flex;align-items:center;gap:9px}
+
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -358,6 +388,12 @@
   </header>
 
   <div class="stage" id="tab-s2">
+    <div class="keybar">
+      <b class="kb-title">키보드 단축키</b>
+      <span class="kb-item"><kbd>1</kbd><span class="kb-or">또는</span><kbd>←</kbd> 1개 이상 정답</span>
+      <span class="kb-item"><kbd>2</kbd><span class="kb-or">또는</span><kbd>→</kbd> 전부 틀림</span>
+      <span class="kb-item"><kbd>R</kbd> 초기화</span>
+    </div>
   <section class="panel board">
     <div class="board-body">
       <div class="ladders" id="ladders"></div>
@@ -380,8 +416,8 @@
       <div class="ask">
         <p class="ask-label" id="askLabel">이 배치를 시도한 결과는?</p>
         <div class="ask-row">
-          <button class="resp same" id="someBtn">1개 이상 정답<small>자리 하나라도 맞음</small></button>
-          <button class="resp diff" id="noneBtn">전부 틀림<small>세 자리 모두 틀림</small></button>
+          <button class="resp same" id="someBtn" aria-keyshortcuts="1 ArrowLeft">1개 이상 정답<small>자리 하나라도 맞음</small><span class="keys"><kbd>1</kbd><span class="kb-or">또는</span><kbd>←</kbd></span></button>
+          <button class="resp diff" id="noneBtn" aria-keyshortcuts="2 ArrowRight">전부 틀림<small>세 자리 모두 틀림</small><span class="keys"><kbd>2</kbd><span class="kb-or">또는</span><kbd>→</kbd></span></button>
         </div>
         <p class="msg" id="msg" role="status" aria-live="polite"></p>
       </div>
@@ -399,7 +435,7 @@
 
       <div class="ctrl-row">
         <button class="ghost" id="backBtn">한 단계 뒤로</button>
-        <button class="ghost" id="resetBtn">초기화</button>
+        <button class="ghost has-key" id="resetBtn" aria-keyshortcuts="R">초기화<kbd>R</kbd></button>
       </div>
     </div>
     <p class="foot">
@@ -410,6 +446,12 @@
   </div>
 
   <div class="stage3" id="tab-s3" hidden>
+    <div class="keybar">
+      <b class="kb-title">키보드 단축키</b>
+      <span class="kb-item"><kbd>1</kbd><span class="kb-or">~</span><kbd>4</kbd> 슬라임 수</span>
+      <span class="kb-item"><kbd>Space</kbd> 현재 배치 복사</span>
+      <span class="kb-item"><kbd>R</kbd> 초기화</span>
+    </div>
     <div class="s3-top">
       <section class="panel board3">
         <div class="board-body">
@@ -436,7 +478,7 @@
             <span class="step-chip" id="step3">1번째 시도</span>
             <span class="combo-wrap">
               <span class="guide-combo pending" id="combo3">─</span>
-              <button class="ghost combo-copy" id="copy3" type="button">복사</button>
+              <button class="ghost combo-copy" id="copy3" type="button" title="현재 배치 복사 (Space)" aria-keyshortcuts="Space">복사</button>
             </span>
           </div>
           <button class="apply" id="apply3" hidden>추천 배치로 맞추기</button>
@@ -447,7 +489,7 @@
 
           <div class="ctrl-row">
             <button class="ghost" id="back3">한 단계 뒤로</button>
-            <button class="ghost" id="reset3">초기화</button>
+            <button class="ghost has-key" id="reset3" aria-keyshortcuts="R">초기화<kbd>R</kbd></button>
           </div>
 
           <div class="trail" id="trail3"></div>
@@ -729,6 +771,19 @@
   els.someBtn.addEventListener("click", function(){ answer("some"); });
   els.noneBtn.addEventListener("click", function(){ answer("none"); });
 
+  /* 키보드 — 1·← 는 1개 이상 정답, 2·→ 는 전부 틀림.
+     꺼져 있는 버튼은 click() 이 그냥 무시되므로 따로 막지 않는다 */
+  var pane2 = document.getElementById("tab-s2");
+  document.addEventListener("keydown", function(e){
+    if (pane2.hidden || !keyIdle(e)) return;
+    var b = (e.key === "1" || e.key === "ArrowLeft") ? els.someBtn
+          : (e.key === "2" || e.key === "ArrowRight") ? els.noneBtn
+          : isR(e) ? els.resetBtn : null;
+    if (!b) return;
+    e.preventDefault();
+    b.click();
+  });
+
   els.backBtn.addEventListener("click", function(){
     var h = history.pop();
     if (!h) return;
@@ -766,6 +821,18 @@
   if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
   else start((window.claude && window.claude.hot && window.claude.hot.data) || null);
 })();
+
+/* 글자를 입력 중이거나 조합키를 누른 상태면 단축키를 비켜 준다 */
+function keyIdle(e){
+  if (e.ctrlKey || e.altKey || e.metaKey || e.isComposing || e.repeat) return false;
+  var t = e.target;
+  return !(t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable));
+}
+
+/* R — 한글 자판이 켜져 있어도 자리로 잡히도록 code 를 먼저 본다 */
+function isR(e){
+  return e.code === "KeyR" || (e.key && e.key.length === 1 && e.key.toLowerCase() === "r");
+}
 
 /* ================= 탭 전환 ================= */
 (function(){
@@ -869,7 +936,9 @@
                  : '<span class="none">안 나옴</span>';
     var b = document.createElement("button");
     b.className = "slime";
-    b.innerHTML = '<span class="n">' + n + '마리</span><span class="dots">' + dots + '</span>';
+    b.innerHTML = '<span class="lbl"><kbd>' + n + '</kbd><span class="n">' + n + '마리</span></span>'
+                + '<span class="dots">' + dots + '</span>';
+    b.setAttribute("aria-keyshortcuts", String(n));
     b.addEventListener("click", function(){ answer(n); });
     els.slimeRow.appendChild(b);
     slime[n] = b;
@@ -1015,6 +1084,20 @@
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(t).then(ok, no);
     } else no();
+  });
+
+  /* 키보드 — 0~4 는 슬라임 수, Space 는 복사.
+     Space 는 눌린 버튼이 되살아나지 않도록 기본 동작을 막고 복사로만 쓴다 */
+  var pane3 = document.getElementById("tab-s3");
+  document.addEventListener("keydown", function(e){
+    if (pane3.hidden || !keyIdle(e)) return;
+    if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); els.copy.click(); return; }
+    if (isR(e)) { e.preventDefault(); els.reset.click(); return; }
+    if (e.key.length !== 1) return;
+    var n = "01234".indexOf(e.key);
+    if (n < 0) return;
+    e.preventDefault();
+    slime[n].click();
   });
 
   els.apply.addEventListener("click", function(){
